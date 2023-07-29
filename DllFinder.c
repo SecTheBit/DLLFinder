@@ -32,7 +32,7 @@ void Dllparser(HANDLE prcsID){
   DWORD lpnLengthNeeded;
   if((EnumProcessModulesEx(prcsID,lphmodule,cb,(LPDWORD)&lpcbNeeded,LIST_MODULES_ALL))!=0){
      cb=lpcbNeeded/sizeof(HMODULE);
-     printf("[+] Total Modules Found is %d\n",cb);
+ 
   }
   if((EnumProcessModulesEx(prcsID,lphmodule,cb,(LPDWORD)&lpcbNeeded,LIST_MODULES_ALL))!=0){
     printf("[+] Enumerating Modules...\n");
@@ -122,19 +122,14 @@ void process_parsing(){
 
 }
 void set_priority(){
-  if(priority_all){
-    printf("[+] Dumping All Process DLL\n");
-  }
-  else{
-    if(priority_process_name){
-        printf("[+] Dumping Dll for Process: %s\n",process_name);
+  if(priority_process_name){
+        process_parsing();
     }
-    else {
-        printf("[+] Dumping Dll for Current Process\n");
+  else {
+        printf("[+] Process Name Not provided\n");
+        exit(0);
     }
-  }
-  process_parsing();
-
+  
 }
 
 int main (int argc, char **argv)
@@ -146,12 +141,12 @@ int main (int argc, char **argv)
     {
       static struct option long_options[] =
         {
-          {"process_name",  required_argument, 0, 'p'},,
+          {"process_name",  required_argument, 0, 'p'},
           {0, 0, 0, 0}
         };
       int option_index = 0;
 
-      c = getopt_long (argc, argv, "adp:o:f:",
+      c = getopt_long (argc, argv, "p:",
                        long_options, &option_index);
 
       if (c == -1) {
@@ -169,20 +164,9 @@ int main (int argc, char **argv)
           printf ("\n");
           break;
 
-        case 'a':
-          priority_all=1;
-          break;
-
         case 'p':
           priority_process_name=1;
           process_name=optarg;
-          break;
-
-        case 'o':
-          output_format=optarg;
-          break;
-        case 'd':
-          priority_current_process=1;
           break;
 
         case '?':
