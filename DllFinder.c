@@ -46,25 +46,27 @@ void Dllparser(HANDLE prcsID){
     printf("[+] Enumerating Modules...\n");
   }
   
-  for(int handlesw=0;handlesw<cb;handlesw++){
+  for(int handlesw=1;handlesw<cb;handlesw++){
 
     module_name=lphmoduleArray[handlesw];
 
     if(GetModuleFileNameExA(prcsID,module_name,lpbasename,500)!=0){
-      printf("module found %s        ",lpbasename);
-      if((GetFileSecurityA(lpbasename,OWNER_SECURITY_INFORMATION,pSecurityDescriptor,500,(DWORD *)&lpnLengthNeeded))!=0){
-        HANDLE threadhandle=GetCurrentThread();
-        PHANDLE tokenHandle;
-        if(!(OpenThreadToken(threadhandle,TOKEN_QUERY,TRUE,tokenHandle))){       
+      if((strstr(lpbasename,process_name)) == NULL){      
+        printf("module found %s        ",lpbasename);
+        if((GetFileSecurityA(lpbasename,OWNER_SECURITY_INFORMATION,pSecurityDescriptor,500,(DWORD *)&lpnLengthNeeded))!=0){
+          HANDLE threadhandle=GetCurrentThread();
+          PHANDLE tokenHandle;
+          if(!(OpenThreadToken(threadhandle,TOKEN_QUERY,TRUE,tokenHandle))){       
           
         // checking read access
-          BOOL read_access=readAccess(tokenHandle,pSecurityDescriptor); 
-          if(read_access){
-            printf("Write Permission\n");
+            BOOL read_access=readAccess(tokenHandle,pSecurityDescriptor); 
+            if(read_access){
+              printf("Write Permission\n");
         }
       }
       }
      
+    }
     }
   }
   
