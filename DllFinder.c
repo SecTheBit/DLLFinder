@@ -35,7 +35,8 @@ void Dllparser(HANDLE prcsID){
   HMODULE *lphmodule=lphmoduleArray;
   DWORD lpcbNeeded;
   unsigned char buffer[500];
-  PSECURITY_DESCRIPTOR  pSecurityDescriptor=buffer;
+  unsigned char buffer_psecuritydescriptor[500];
+  PSECURITY_DESCRIPTOR  pSecurityDescriptor=buffer_psecuritydescriptor;
   HMODULE module_name;
   LPSTR lpbasename=buffer;
   DWORD lpnLengthNeeded;
@@ -52,16 +53,17 @@ void Dllparser(HANDLE prcsID){
 
     if(GetModuleFileNameExA(prcsID,module_name,lpbasename,500)!=0){
       if((strstr(lpbasename,process_name)) == NULL){      
-        printf("module found %s        ",lpbasename);
+        
         if((GetFileSecurityA(lpbasename,OWNER_SECURITY_INFORMATION,pSecurityDescriptor,500,(DWORD *)&lpnLengthNeeded))!=0){
+          
           HANDLE threadhandle=GetCurrentThread();
           PHANDLE tokenHandle;
           if(!(OpenThreadToken(threadhandle,TOKEN_QUERY,TRUE,tokenHandle))){       
-          
+            
         // checking read access
             BOOL read_access=readAccess(tokenHandle,pSecurityDescriptor); 
             if(read_access){
-              printf("Write Permission\n");
+              printf("Module %s have Read Permission\n",lpbasename);
         }
       }
       }
