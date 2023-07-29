@@ -16,22 +16,7 @@ void ErrorMessagess(DWORD status){
     printf("[+] Error is %s \n", buffer);
 }
 
-BOOL Access(PHANDLE threadContext, PSECURITY_DESCRIPTOR pSecurityDescriptor){
-  DWORD readdesiredAccess=31,writedesiredAcess=30,executedesiredAccess=29;
-  DWORD flag_read=0,flag_write=0,flag_execute=0;
-  PGENERIC_MAPPING pgenericMapping;
-  PRIVILEGE_SET privilegeSet;
-  DWORD GrantedAccess;
-  BOOL AccessStatus;
-  DWORD grantedAccess=(DWORD)sizeof(privilegeSet);
-  if(!(AccessCheck(pSecurityDescriptor,threadContext,readdesiredAccess,pgenericMapping,(PPRIVILEGE_SET)&privilegeSet,(LPDWORD)sizeof(privilegeSet),(PDWORD)&GrantedAccess,(PBOOL)&AccessStatus))!=0){
-    flag_read=1;
-  }
-  if(!(AccessCheck(pSecurityDescriptor,threadContext,writedesiredAcess,pgenericMapping,(PPRIVILEGE_SET)&privilegeSet,(LPDWORD)sizeof(privilegeSet),(PDWORD)&GrantedAccess,(PBOOL)&AccessStatus))!=0){
-    flag_write=1;
-  }
-  
-}
+
 
 
 void Dllparser(HANDLE prcsID){
@@ -52,7 +37,7 @@ void Dllparser(HANDLE prcsID){
   if((EnumProcessModulesEx(prcsID,lphmodule,cb,(LPDWORD)&lpcbNeeded,LIST_MODULES_ALL))!=0){
     printf("[+] Enumerating Modules...\n");
     printf("=================================================================================\n");
-    printf("==================================================================================\n");
+    printf("=================================================================================\n");
   }
   
   for(int handlesw=1;handlesw<cb;handlesw++){
@@ -61,20 +46,8 @@ void Dllparser(HANDLE prcsID){
 
     if(GetModuleFileNameExA(prcsID,module_name,lpbasename,500)!=0){
       if((strstr(lpbasename,process_name)) == NULL){      
-        
-        if((GetFileSecurityA(lpbasename,OWNER_SECURITY_INFORMATION,pSecurityDescriptor,500,(DWORD *)&lpnLengthNeeded))!=0){
-          
-          HANDLE threadhandle=GetCurrentThread();
-          PHANDLE tokenHandle;
-          if(!(OpenThreadToken(threadhandle,TOKEN_QUERY,TRUE,tokenHandle))){       
-            
-        // checking read access
-            BOOL read_access=readAccess(tokenHandle,pSecurityDescriptor); 
-            if(read_access){
-              printf("Module %s have Read Permission\n",lpbasename);
-        }
-      }
-      }
+          printf("[+] Module Found %s\n",lpbasename);
+
      
     }
     }
@@ -109,7 +82,7 @@ DWORD FindTargetProc( const char *targetprocess){
              while(Process32Next(prcs,(LPPROCESSENTRY32)&pe32)){
                 int cmp=strcasecmp(targetprocess,pe32.szExeFile);
                 if(cmp==0){
-                    printf("\n[+] Process found\n");
+                    printf("[+] Process found\n");
                     pid=pe32.th32ProcessID;
                     flag=1;
                     break;
@@ -173,10 +146,7 @@ int main (int argc, char **argv)
     {
       static struct option long_options[] =
         {
-          {"process_name",  required_argument, 0, 'p'},
-          {"all",  no_argument, 0, 'a'},
-          {"current_process",  no_argument, 0, 'd'},
-          {"output",    required_argument, 0, 'o'},
+          {"process_name",  required_argument, 0, 'p'},,
           {0, 0, 0, 0}
         };
       int option_index = 0;
