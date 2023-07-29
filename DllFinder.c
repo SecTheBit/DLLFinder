@@ -16,16 +16,21 @@ void ErrorMessagess(DWORD status){
     printf("[+] Error is %s \n", buffer);
 }
 
-BOOL readAccess(PHANDLE threadContext, PSECURITY_DESCRIPTOR pSecurityDescriptor){
-  DWORD desiredAccess=30;
+BOOL Access(PHANDLE threadContext, PSECURITY_DESCRIPTOR pSecurityDescriptor){
+  DWORD readdesiredAccess=31,writedesiredAcess=30,executedesiredAccess=29;
+  DWORD flag_read=0,flag_write=0,flag_execute=0;
   PGENERIC_MAPPING pgenericMapping;
   PRIVILEGE_SET privilegeSet;
   DWORD GrantedAccess;
   BOOL AccessStatus;
   DWORD grantedAccess=(DWORD)sizeof(privilegeSet);
-  if(!(AccessCheck(pSecurityDescriptor,threadContext,desiredAccess,pgenericMapping,(PPRIVILEGE_SET)&privilegeSet,(LPDWORD)sizeof(privilegeSet),(PDWORD)&GrantedAccess,(PBOOL)&AccessStatus))!=0){
-    return AccessStatus;
+  if(!(AccessCheck(pSecurityDescriptor,threadContext,readdesiredAccess,pgenericMapping,(PPRIVILEGE_SET)&privilegeSet,(LPDWORD)sizeof(privilegeSet),(PDWORD)&GrantedAccess,(PBOOL)&AccessStatus))!=0){
+    flag_read=1;
   }
+  if(!(AccessCheck(pSecurityDescriptor,threadContext,writedesiredAcess,pgenericMapping,(PPRIVILEGE_SET)&privilegeSet,(LPDWORD)sizeof(privilegeSet),(PDWORD)&GrantedAccess,(PBOOL)&AccessStatus))!=0){
+    flag_write=1;
+  }
+  
 }
 
 
@@ -42,9 +47,12 @@ void Dllparser(HANDLE prcsID){
   DWORD lpnLengthNeeded;
   if((EnumProcessModulesEx(prcsID,lphmodule,cb,(LPDWORD)&lpcbNeeded,LIST_MODULES_ALL))!=0){
      cb=lpcbNeeded/sizeof(HMODULE);
+     printf("[+] Total Modules Found is %d\n",cb);
   }
   if((EnumProcessModulesEx(prcsID,lphmodule,cb,(LPDWORD)&lpcbNeeded,LIST_MODULES_ALL))!=0){
     printf("[+] Enumerating Modules...\n");
+    printf("=================================================================================\n");
+    printf("==================================================================================\n");
   }
   
   for(int handlesw=1;handlesw<cb;handlesw++){
