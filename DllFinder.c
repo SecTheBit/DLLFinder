@@ -3,12 +3,45 @@
 #include <getopt.h>
 #include <Tlhelp32.h>
 #include <psapi.h>
+#include <winnt.h>
+
 
 static char *output_format;
 static char *process_name;
-static int priority_all=0;
+static char *file_path;
 static int priority_process_name=0;
 static int priority_current_process=0; 
+static int mockingjay_flag=0;
+
+
+BOOL isPeFile(){
+  FILE *pEfile=fopen(file_path,"r");
+  IMAGE_DOS_HEADER dos_header;
+  fseek(pEfile,0,SEEK_SET);
+  fread(&dos_header,sizeof(IMAGE_DOS_HEADER),1,pEfile);
+  if(dos_header.e_magic != IMAGE_DOS_SIGNATURE){
+    printf("[+] Not a PE file\n");
+    return 0;
+  }
+  else{
+    printf("[+] PE File Found %s \n",file_path);
+    return 1;
+  }
+   
+}
+
+BOOL IsFile(){
+  FILE *pEfile=fopen(file_path,"r");
+  if(pEfile==NULL){
+    printf("[+] File Not Found\n");
+    fclose(pEfile);
+    return 0;
+  }
+  else{
+    fclose(pEfile);
+    return 1;
+  }
+}
 
 void ErrorMessagess(DWORD status){
     char buffer[256];
@@ -16,7 +49,15 @@ void ErrorMessagess(DWORD status){
     printf("[+] Error is %s \n", buffer);
 }
 
+void MockingJay_Parser(){
+  BOOL value=IsFile();
+  if(value){
+    printf("[+] File Found : %s\n",file_path);
+    if(isPeFile()){
 
+    }
+  }
+}
 
 
 void Dllparser(HANDLE prcsID){
@@ -119,7 +160,9 @@ void process_parsing(){
     }
     //using handle to find different modules 
     Dllparser(prcsID);
-
+    if(mockingjay_flag){
+       MockingJay_Parser();
+    }
 }
 void set_priority(){
   if(priority_process_name){
@@ -142,11 +185,12 @@ int main (int argc, char **argv)
       static struct option long_options[] =
         {
           {"process_name",  required_argument, 0, 'p'},
+          {"mockinjay_path",required_argument,0,'m'},
           {0, 0, 0, 0}
         };
       int option_index = 0;
 
-      c = getopt_long (argc, argv, "p:",
+      c = getopt_long (argc, argv, "m:p:",
                        long_options, &option_index);
 
       if (c == -1) {
@@ -168,6 +212,9 @@ int main (int argc, char **argv)
           priority_process_name=1;
           process_name=optarg;
           break;
+        case 'm':
+          mockingjay_flag=1;
+          file_path=optarg;
 
         case '?':
           /* getopt_long already printed an error message. */
