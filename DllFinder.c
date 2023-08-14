@@ -8,14 +8,14 @@
 
 static char *output_format;
 static char *process_name;
-static char *file_path;
+static char *PEfilePath;
 static int priority_process_name=0;
 static int priority_current_process=0; 
 static int mockingjay=0;
 
 
 void parseSectionHeader(){
-  FILE *pEfile=fopen(file_path,"r");
+  FILE *pEfile=fopen(PEfilePath,"r");
   IMAGE_DOS_HEADER dos_header;
   IMAGE_NT_HEADERS nt_headers;
   fseek(pEfile,0,SEEK_SET);
@@ -46,7 +46,7 @@ void parseSectionHeader(){
 }
 
 BOOL fileinfo(){
-  FILE *pEfile=fopen(file_path,"r");
+  FILE *pEfile=fopen(PEfilePath,"r");
   IMAGE_DOS_HEADER dos_header;
   WORD pefile_type;
   fseek(pEfile,0,SEEK_SET);
@@ -73,12 +73,12 @@ BOOL fileinfo(){
 }
 }
 BOOL isPeFile(){
-  FILE *pEfile=fopen(file_path,"r");
+  FILE *pEfile=fopen(PEfilePath,"r");
   IMAGE_DOS_HEADER dos_header;
   fseek(pEfile,0,SEEK_SET);
   fread(&dos_header,sizeof(IMAGE_DOS_HEADER),1,pEfile);
   if(dos_header.e_magic == IMAGE_DOS_SIGNATURE){
-    printf("[+] PE File Found %s \n",file_path);
+    printf("[+] PE File Found %s \n",PEfilePath);
     return 1;
   }
   else{
@@ -89,7 +89,7 @@ BOOL isPeFile(){
 }
 
 BOOL IsFile(){
-  FILE *pEfile=fopen(file_path,"r");
+  FILE *pEfile=fopen(PEfilePath,"r");
   if(pEfile==NULL){
     printf("[+] File Not Found\n");
     fclose(pEfile);
@@ -110,7 +110,7 @@ void ErrorMessagess(DWORD status){
 void MockingJay_Parser(){
   BOOL value=IsFile();
   if(value){
-    printf("[+] File Found : %s\n",file_path);
+    printf("[+] File Found : %s\n",PEfilePath);
     if(isPeFile() && fileinfo()){
        parseSectionHeader();
     }
@@ -223,12 +223,17 @@ void process_parsing(){
     }
 }
 void set_priority(){
-  if(priority_process_name){
+  if(((priority_process_name) && (process_name))){
         process_parsing();
     }
   else {
-        printf("[+] Process Name Not provided\n");
+        if((mockingjay && PEfilePath)){
+          MockingJay_Parser();
+        }
+        else{
+        printf("[+] Check Usage\n");
         exit(0);
+        }
     }
   
 }
@@ -244,7 +249,7 @@ int main (int argc, char **argv)
         {
           {"process_name",  required_argument, 0, 'p'},
           {"mockingjay",no_argument,0,'m'},
-          {"file_path",required_argument,0,'f'},
+          {"PEfilePath",required_argument,0,'f'},
           {0, 0, 0, 0}
         };
       int option_index = 0;
@@ -273,7 +278,7 @@ int main (int argc, char **argv)
           break;
         case 'm':
           mockingjay=1;
-          file_path=optarg;
+          PEfilePath=optarg;
 
         case '?':
           /* getopt_long already printed an error message. */
