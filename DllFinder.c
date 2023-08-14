@@ -223,11 +223,11 @@ void process_parsing(){
     }
 }
 void set_priority(){
-  if(((priority_process_name) && (process_name))){
+  if((priority_process_name && process_name) && !(mockingjay || PEfilePath)){
         process_parsing();
     }
   else {
-        if((mockingjay && PEfilePath)){
+        if((mockingjay && PEfilePath) && !(priority_process_name || process_name)){
           MockingJay_Parser();
         }
         else{
@@ -285,7 +285,7 @@ int main (int argc, char **argv)
           break;
 
         default:
-          printf("default option");
+
         }
     }
 
