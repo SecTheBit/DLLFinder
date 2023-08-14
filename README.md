@@ -31,3 +31,7 @@ dllfinder.exe  --mockingjay --PEfilePath "file_path"
 ![POC](https://github.com/SecTheBit/DLLFinder/assets/46895441/b11b35d3-eeaf-4559-a1f0-4053f7ce52fa)
 ![dllfinder](https://github.com/SecTheBit/DLLFinder/assets/46895441/ce61c106-ac86-4aeb-be23-d31ee468f354)
 
+
+### Refrences
+- https://github.com/0xRick/PE-Parser
+- https://www.securityjoes.com/post/process-mockingjay-echoing-rwx-in-userland-to-achieve-code-execution
