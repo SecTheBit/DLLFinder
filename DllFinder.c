@@ -30,8 +30,16 @@ void parseSectionHeader(){
 	
   }
   for (int i = 0; i < nt_headers.FileHeader.NumberOfSections; i++) {
-      if((section_header[i].Characteristics & IMAGE_SCN_MEM_WRITE) &&((section_header[i].Characteristics & IMAGE_SCN_MEM_READ)) && ((section_header[i].Characteristics & IMAGE_SCN_MEM_EXECUTE))){
-       printf("Name of Section having Read Access :%.8s\n",section_header[i].Name);
+      if((section_header[i].Characteristics & IMAGE_SCN_MEM_READ) &&(section_header[i].Characteristics & IMAGE_SCN_MEM_WRITE) && (section_header[i].Characteristics & IMAGE_SCN_MEM_EXECUTE)){
+       printf("[+] Found The Section having rwx permission\n");
+       printf("=================================================================\n");
+       printf("=================================================================\n");
+       printf("[+] Name:%.8s\n",section_header[i].Name);
+       printf("[+] VirtualAddress: 0x%X\n",section_header[i].VirtualAddress);
+       printf("[+] VirtualSize: 0x%X\n", section_header[i].Misc.VirtualSize);
+       printf("[+] PointerToRawData: 0x%X\n", section_header[i].PointerToRawData);
+       printf("[+] SizeofRawData: 0x%X\n",section_header[i].SizeOfRawData);
+       printf("[+] Characteristics: 0x%X\n\n",section_header[i].Characteristics);
       }  
 }
 
@@ -69,7 +77,6 @@ BOOL isPeFile(){
   IMAGE_DOS_HEADER dos_header;
   fseek(pEfile,0,SEEK_SET);
   fread(&dos_header,sizeof(IMAGE_DOS_HEADER),1,pEfile);
-  printf("dos emagic value is %d\n",dos_header.e_magic);
   if(dos_header.e_magic == IMAGE_DOS_SIGNATURE){
     printf("[+] PE File Found %s \n",file_path);
     return 1;
