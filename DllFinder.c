@@ -11,7 +11,7 @@ static char *process_name;
 static char *file_path;
 static int priority_process_name=0;
 static int priority_current_process=0; 
-static int mockingjay_flag=0;
+static int mockingjay=0;
 
 
 void parseSectionHeader(){
@@ -218,7 +218,7 @@ void process_parsing(){
     }
     //using handle to find different modules 
     Dllparser(prcsID);
-    if(mockingjay_flag){
+    if(mockingjay){
        MockingJay_Parser();
     }
 }
@@ -243,12 +243,13 @@ int main (int argc, char **argv)
       static struct option long_options[] =
         {
           {"process_name",  required_argument, 0, 'p'},
-          {"mockinjay_path",required_argument,0,'m'},
+          {"mockingjay",no_argument,0,'m'},
+          {"file_path",required_argument,0,'f'},
           {0, 0, 0, 0}
         };
       int option_index = 0;
 
-      c = getopt_long (argc, argv, "m:p:",
+      c = getopt_long (argc, argv, "mf:p:",
                        long_options, &option_index);
 
       if (c == -1) {
@@ -271,7 +272,7 @@ int main (int argc, char **argv)
           process_name=optarg;
           break;
         case 'm':
-          mockingjay_flag=1;
+          mockingjay=1;
           file_path=optarg;
 
         case '?':
