@@ -14,18 +14,69 @@ static int priority_current_process=0;
 static int mockingjay_flag=0;
 
 
+void parseSectionHeader(){
+  FILE *pEfile=fopen(file_path,"r");
+  IMAGE_DOS_HEADER dos_header;
+  IMAGE_NT_HEADERS nt_headers;
+  fseek(pEfile,0,SEEK_SET);
+  fread(&dos_header,sizeof(IMAGE_DOS_HEADER),1,pEfile);
+  fseek(pEfile,dos_header.e_lfanew,SEEK_SET);
+  fread(&nt_headers,sizeof(IMAGE_NT_HEADERS),1,pEfile);
+  IMAGE_SECTION_HEADER section_header[nt_headers.FileHeader.NumberOfSections];
+	for (int i = 0; i <  nt_headers.FileHeader.NumberOfSections; i++) {
+		int offset = (dos_header.e_lfanew + sizeof(DWORD)+ sizeof(IMAGE_FILE_HEADER)+nt_headers.FileHeader.SizeOfOptionalHeader )+ (i * sizeof(IMAGE_SECTION_HEADER)) ;
+    fseek(pEfile, offset, SEEK_SET);
+		fread(&section_header[i], sizeof(IMAGE_SECTION_HEADER), 1, pEfile);
+	
+  }
+  for (int i = 0; i < nt_headers.FileHeader.NumberOfSections; i++) {
+      if((section_header[i].Characteristics & IMAGE_SCN_MEM_WRITE) &&((section_header[i].Characteristics & IMAGE_SCN_MEM_READ)) && ((section_header[i].Characteristics & IMAGE_SCN_MEM_EXECUTE))){
+       printf("Name of Section having Read Access :%.8s\n",section_header[i].Name);
+      }  
+}
+
+}
+
+BOOL fileinfo(){
+  FILE *pEfile=fopen(file_path,"r");
+  IMAGE_DOS_HEADER dos_header;
+  WORD pefile_type;
+  fseek(pEfile,0,SEEK_SET);
+  fread(&dos_header,sizeof(IMAGE_DOS_HEADER),1,pEfile);
+
+  fseek(pEfile,dos_header.e_lfanew+sizeof(DWORD)+ sizeof(IMAGE_FILE_HEADER), SEEK_SET);
+  fread(&pefile_type,sizeof(WORD), 1, pEfile);
+  
+	if (pefile_type == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
+		printf("[+] EXE is 32 bit\n");
+    return 1;
+	}
+	else {
+    if(pefile_type==IMAGE_NT_OPTIONAL_HDR64_MAGIC){
+      printf("[+] EXE is 64 bit\n");
+      return 1;
+    }
+    else  {
+      printf("[+] Can not determined the File Type\n");
+      return 0;
+    }
+	
+
+}
+}
 BOOL isPeFile(){
   FILE *pEfile=fopen(file_path,"r");
   IMAGE_DOS_HEADER dos_header;
   fseek(pEfile,0,SEEK_SET);
   fread(&dos_header,sizeof(IMAGE_DOS_HEADER),1,pEfile);
-  if(dos_header.e_magic != IMAGE_DOS_SIGNATURE){
-    printf("[+] Not a PE file\n");
-    return 0;
-  }
-  else{
+  printf("dos emagic value is %d\n",dos_header.e_magic);
+  if(dos_header.e_magic == IMAGE_DOS_SIGNATURE){
     printf("[+] PE File Found %s \n",file_path);
     return 1;
+  }
+  else{
+    printf("[+] Not a PE File\n");
+    return 0;
   }
    
 }
@@ -53,8 +104,8 @@ void MockingJay_Parser(){
   BOOL value=IsFile();
   if(value){
     printf("[+] File Found : %s\n",file_path);
-    if(isPeFile()){
-
+    if(isPeFile() && fileinfo()){
+       parseSectionHeader();
     }
   }
 }
