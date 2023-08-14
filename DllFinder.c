@@ -218,16 +218,14 @@ void process_parsing(){
     }
     //using handle to find different modules 
     Dllparser(prcsID);
-    if(mockingjay){
-       MockingJay_Parser();
-    }
+
 }
 void set_priority(){
-  if((priority_process_name && process_name) && !(mockingjay || PEfilePath)){
+  if((priority_process_name) && !(mockingjay)) {
         process_parsing();
     }
   else {
-        if((mockingjay && PEfilePath) && !(priority_process_name || process_name)){
+        if((mockingjay) && !(priority_process_name)){
           MockingJay_Parser();
         }
         else{
@@ -278,6 +276,8 @@ int main (int argc, char **argv)
           break;
         case 'm':
           mockingjay=1;
+          
+        case 'f':
           PEfilePath=optarg;
 
         case '?':
@@ -285,6 +285,7 @@ int main (int argc, char **argv)
           break;
 
         default:
+        printf("check Usage");
 
         }
     }
