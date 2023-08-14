@@ -12,6 +12,7 @@ static char *PEfilePath;
 static int priority_process_name=0;
 static int priority_current_process=0; 
 static int mockingjay=0;
+static int rwx_flag=0;
 
 
 void parseSectionHeader(){
@@ -31,6 +32,7 @@ void parseSectionHeader(){
   }
   for (int i = 0; i < nt_headers.FileHeader.NumberOfSections; i++) {
       if((section_header[i].Characteristics & IMAGE_SCN_MEM_READ) &&(section_header[i].Characteristics & IMAGE_SCN_MEM_WRITE) && (section_header[i].Characteristics & IMAGE_SCN_MEM_EXECUTE)){
+       rwx_flag=1;
        printf("[+] Found The Section having rwx permission\n");
        printf("=================================================================\n");
        printf("=================================================================\n");
@@ -41,7 +43,11 @@ void parseSectionHeader(){
        printf("[+] SizeofRawData: 0x%X\n",section_header[i].SizeOfRawData);
        printf("[+] Characteristics: 0x%X\n\n",section_header[i].Characteristics);
       }  
+
 }
+      if(!rwx_flag){
+        printf("[+] No rwx Section Found\n");
+      }
 
 }
 
